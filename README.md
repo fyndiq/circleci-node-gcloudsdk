@@ -17,10 +17,18 @@ docker: fyndiq/circleci-node-gcloudsdk:node-lts-gcloudsdk538.0.0-v1
 
 ## Building and Testing
 
+### Architecture Requirements
+
+**Important**: This image must be built for `linux/amd64` architecture to be compatible with CircleCI runners.
+
 ### Build the Image
 
 ```bash
+# Build for production (amd64 - CircleCI compatible)
 make build
+
+# Build for local testing (native architecture)
+make build-local
 ```
 
 ### Test the Image
@@ -41,8 +49,11 @@ The test script will verify:
 ### Push to Registry
 
 ```bash
+# Builds for amd64 and pushes directly
 make push
 ```
+
+**Note**: `make push` automatically builds for `linux/amd64` and pushes to ensure CircleCI compatibility.
 
 ## Updating Versions
 
@@ -87,6 +98,27 @@ Edit the respective `ARG` variables in the `Dockerfile`:
 
 - `SKAFFOLD_VERSION` for Skaffold
 - `HELM_VERSION` for Helm
+
+## Troubleshooting
+
+### Common Issues
+
+**Architecture Issues in CircleCI**
+- **Error**: "found arm64 but need [amd64 i386 386]"
+- **Solution**: Rebuild with `make push` (builds for amd64 automatically)
+- **Cause**: Image was built on Apple Silicon (arm64) but CircleCI needs amd64
+
+**Google Cloud SDK Installation Fails**
+- Ensure you're using the correct package name (`google-cloud-cli` vs `google-cloud-sdk`)
+- Check version compatibility with the base Node.js image
+
+**Node.js Version Mismatch**
+- Verify the `cimg/node` tag exists: `docker pull cimg/node:VERSION`
+- Use `docker run --rm cimg/node:VERSION node --version` to check exact version
+
+**Build Performance**
+- Docker layers are cached for faster rebuilds
+- Use `docker system prune` if builds become slow
 
 ## Available Tags
 

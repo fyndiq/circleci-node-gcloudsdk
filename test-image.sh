@@ -10,6 +10,7 @@ echo "=================================="
 
 # Step 1: Build the image
 echo "1️⃣  Building Docker image..."
+echo "ℹ️  Note: Building for amd64 architecture (CircleCI compatible)"
 make build
 
 # Step 2: Test Node.js version
@@ -71,6 +72,16 @@ fi
 echo "🔟 Testing sudo access..."
 docker run --rm $IMAGE_TAG sudo echo "Sudo access works" > /dev/null
 echo "✅ Sudo access confirmed"
+
+# Step 11: Check image architecture
+echo "1️⃣1️⃣ Checking image architecture..."
+ARCH_INFO=$(docker inspect $IMAGE_TAG --format='{{.Architecture}}')
+echo "✅ Image architecture: $ARCH_INFO"
+if [[ $ARCH_INFO == "amd64" ]]; then
+    echo "✅ Architecture is amd64 (CircleCI compatible)"
+else
+    echo "⚠️  Warning: Architecture is $ARCH_INFO (may not work in CircleCI)"
+fi
 
 echo ""
 echo "🎉 All tests passed! The Docker image is ready for use."
