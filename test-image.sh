@@ -3,7 +3,7 @@
 # Test script to validate the Node.js 22 Docker image functionality
 set -e
 
-IMAGE_TAG="fyndiq/circleci-node-gcloudsdk:node-22.19-gcloudsdk538.0.0-v1"
+IMAGE_TAG="fyndiq/circleci-node-gcloudsdk:node-lts-gcloudsdk538.0.0-v1"
 
 echo "🧪 Testing Docker image: $IMAGE_TAG"
 echo "=================================="

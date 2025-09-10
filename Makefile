@@ -1,6 +1,6 @@
 REPO=fyndiq
 NAME=circleci-node-gcloudsdk
-TAG=node-22.19-gcloudsdk538.0.0-v1
+TAG=node-lts-gcloudsdk538.0.0-v1
 
 build:
 	docker build -t $(REPO)/$(NAME):$(TAG) .

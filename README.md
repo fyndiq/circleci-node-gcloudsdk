@@ -4,7 +4,7 @@ Docker image that extends the `cimg/node` image with Google's Cloud SDK and addi
 
 ## Current Version
 
-- **Node.js**: 22.19.0 (LTS)
+- **Node.js**: LTS (automatically tracks latest LTS - currently 22.19.0)
 - **Google Cloud SDK**: 538.0.0
 - **Additional Tools**: kubectl, Helm (v3.4.2), Skaffold (v1.17.2), jq
 
@@ -12,7 +12,7 @@ Docker image that extends the `cimg/node` image with Google's Cloud SDK and addi
 
 ```bash
 # Use in your CircleCI config
-docker: fyndiq/circleci-node-gcloudsdk:node-22.19-gcloudsdk538.0.0-v1
+docker: fyndiq/circleci-node-gcloudsdk:node-lts-gcloudsdk538.0.0-v1
 ```
 
 ## Building and Testing
@@ -52,13 +52,13 @@ make push
 2. Update the `FROM` line in `Dockerfile`:
 
    ```dockerfile
-   FROM cimg/node:22.19  # Change to desired version
+   FROM cimg/node:lts  # Use LTS for automatic updates, or specific version like 22.19
    ```
 
 3. Update the tag in `Makefile`:
 
    ```makefile
-   TAG=node-22.19-gcloudsdk538.0.0-v1  # Update Node.js version
+   TAG=node-lts-gcloudsdk538.0.0-v1  # Use lts or specific version number
    ```
 
 4. Update the test script tag in `test-image.sh`
