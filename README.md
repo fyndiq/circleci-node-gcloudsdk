@@ -4,7 +4,7 @@ Docker image that extends the `cimg/node` image with Google's Cloud SDK and addi
 
 ## Current Version
 
-- **Node.js**: LTS (automatically tracks latest LTS - currently 22.19.0)
+- **Node.js**: 22.19 (pinned for compatibility)
 - **Google Cloud SDK**: 538.0.0
 - **Additional Tools**: kubectl, Helm (v3.4.2), Skaffold (v1.17.2), jq
 
@@ -63,7 +63,7 @@ make push
 2. Update the `FROM` line in `Dockerfile`:
 
    ```dockerfile
-   FROM cimg/node:lts  # Use LTS for automatic updates, or specific version like 22.19
+   FROM cimg/node:22.19  # Pinned to specific version for compatibility
    ```
 
 3. Update the tag in `Makefile`:
