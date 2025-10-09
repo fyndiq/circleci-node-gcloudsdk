@@ -4,7 +4,7 @@ Docker image that extends the `cimg/node` image with Google's Cloud SDK and addi
 
 ## Current Version
 
-- **Node.js**: 22.19 (pinned for compatibility)
+- **Node.js**: 22.19.0 (pinned to specific version)
 - **Google Cloud SDK**: 538.0.0
 - **Additional Tools**: kubectl, Helm (v3.4.2), Skaffold (v1.17.2), jq
 
@@ -63,17 +63,17 @@ make push
 2. Update the `FROM` line in `Dockerfile`:
 
    ```dockerfile
-   FROM cimg/node:22.19  # Pinned to specific version for compatibility
+   FROM cimg/node:22.19.0  # Pinned to specific version
    ```
 
-3. Update the tag in `Makefile`:
+1. Update the tag in `Makefile`:
 
    ```makefile
    TAG=node-lts-gcloudsdk538.0.0-v1  # Use lts or specific version number
    ```
 
-4. Update the test script tag in `test-image.sh`
-5. Test the changes: `./test-image.sh`
+2. Update the test script tag in `test-image.sh`
+3. Test the changes: `./test-image.sh`
 
 ### Update Google Cloud SDK Version
 
@@ -113,8 +113,11 @@ Edit the respective `ARG` variables in the `Dockerfile`:
 - Check version compatibility with the base Node.js image
 
 **Node.js Version Mismatch**
-- Verify the `cimg/node` tag exists: `docker pull cimg/node:VERSION`
-- Use `docker run --rm cimg/node:VERSION node --version` to check exact version
+- **Important**: CircleCI's `cimg/node:22.19` is a floating tag that updates to newer patch versions
+- To lock to an exact version, use specific version tag: `FROM cimg/node:22.19.0`
+- For ultimate locking, use SHA digest: `FROM cimg/node:22.19.0@sha256:...`
+- Verify the exact version: `docker run --rm cimg/node:VERSION node --version`
+- Find image digests at: [CircleCI Docker Hub](https://hub.docker.com/r/cimg/node/tags)
 
 **Build Performance**
 - Docker layers are cached for faster rebuilds
