@@ -1,16 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Test script to validate the Node.js 22 Docker image functionality
 set -e
 
-IMAGE_TAG="fyndiq/circleci-node-gcloudsdk:node-lts-gcloudsdk538.0.0-v1"
+# Derive the tag the same way the Makefile does (short git SHA)
+TAG=$(git rev-parse --short HEAD)
+IMAGE_TAG="fyndiq/circleci-node-gcloudsdk:$TAG"
 
 echo "🧪 Testing Docker image: $IMAGE_TAG"
 echo "=================================="
 
 # Step 1: Build the image
 echo "1️⃣  Building Docker image..."
-echo "ℹ️  Note: Building for amd64 architecture (CircleCI compatible)"
 make build
 
 # Step 2: Test Node.js version
@@ -43,7 +44,7 @@ echo "✅ kubectl: $KUBECTL_VERSION"
 
 # Step 6: Test helm
 echo "6️⃣  Testing Helm..."
-HELM_VERSION=$(docker run --rm $IMAGE_TAG helm version --short --client)
+HELM_VERSION=$(docker run --rm $IMAGE_TAG helm version --short)
 echo "✅ Helm version: $HELM_VERSION"
 
 # Step 7: Test skaffold
@@ -51,13 +52,8 @@ echo "7️⃣  Testing Skaffold..."
 SKAFFOLD_VERSION=$(docker run --rm $IMAGE_TAG skaffold version)
 echo "✅ Skaffold version: $SKAFFOLD_VERSION"
 
-# Step 8: Test jq
-echo "8️⃣  Testing jq..."
-JQ_VERSION=$(docker run --rm $IMAGE_TAG jq --version)
-echo "✅ jq version: $JQ_VERSION"
-
-# Step 9: Test user setup
-echo "9️⃣  Testing user setup..."
+# Step 8: Test user setup
+echo "8️⃣  Testing user setup..."
 USER_INFO=$(docker run --rm $IMAGE_TAG whoami)
 echo "✅ Running as user: $USER_INFO"
 
@@ -68,13 +64,13 @@ else
     exit 1
 fi
 
-# Step 10: Test sudo access
-echo "🔟 Testing sudo access..."
+# Step 9: Test sudo access
+echo "9️⃣  Testing sudo access..."
 docker run --rm $IMAGE_TAG sudo echo "Sudo access works" > /dev/null
 echo "✅ Sudo access confirmed"
 
-# Step 11: Check image architecture
-echo "1️⃣1️⃣ Checking image architecture..."
+# Step 10: Check image architecture
+echo "🔟 Checking image architecture..."
 ARCH_INFO=$(docker inspect $IMAGE_TAG --format='{{.Architecture}}')
 echo "✅ Image architecture: $ARCH_INFO"
 if [[ $ARCH_INFO == "amd64" ]]; then

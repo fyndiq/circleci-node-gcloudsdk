@@ -5,15 +5,20 @@ Docker image that extends the `cimg/node` image with Google's Cloud SDK and addi
 ## Current Version
 
 - **Node.js**: 22.19.0 (pinned to specific version)
-- **Google Cloud SDK**: 538.0.0
-- **Additional Tools**: kubectl, Helm (v3.4.2), Skaffold (v1.17.2), jq
+- **Google Cloud SDK**: 570.0.0
+- **Additional Tools**: kubectl, Helm (v4.2.0), Skaffold (installed via gcloud components)
 
 ## Quick Start
 
 ```bash
 # Use in your CircleCI config
-docker: fyndiq/circleci-node-gcloudsdk:node-lts-gcloudsdk538.0.0-v1
+docker: fyndiq/circleci-node-gcloudsdk:latest
+
+# To pin to a specific build (e.g. when testing changes), use the short git SHA
+docker: fyndiq/circleci-node-gcloudsdk:<sha>
 ```
+
+CI pipelines use the `latest` tag by default. Each build is also published under its short git SHA — see [Available Tags](#available-tags) for the full list.
 
 ## Building and Testing
 
@@ -43,7 +48,7 @@ The test script will verify:
 
 - ✅ Node.js version and npm
 - ✅ Google Cloud SDK functionality
-- ✅ kubectl, Helm, Skaffold, and jq tools
+- ✅ kubectl, Helm, and Skaffold tools
 - ✅ CircleCI user setup and sudo access
 
 ### Push to Registry
@@ -57,6 +62,8 @@ make push
 
 ## Updating Versions
 
+> **Note**: The image tag is derived from the short git SHA at build time (see `Makefile`), so updating versions does not require editing the `TAG` anywhere — just commit your changes and rebuild.
+
 ### Update Node.js Version
 
 1. Check available `cimg/node` tags at [CircleCI Node Images](https://circleci.com/developer/images/image/cimg/node)
@@ -66,38 +73,28 @@ make push
    FROM cimg/node:22.19.0  # Pinned to specific version
    ```
 
-1. Update the tag in `Makefile`:
-
-   ```makefile
-   TAG=node-lts-gcloudsdk538.0.0-v1  # Use lts or specific version number
-   ```
-
-2. Update the test script tag in `test-image.sh`
 3. Test the changes: `./test-image.sh`
 
 ### Update Google Cloud SDK Version
 
-1. Find latest version:
+1. Find the latest version — either browse the [Google Cloud SDK release notes](https://cloud.google.com/sdk/docs/release-notes), or query the apt repo directly (the version numbers match the tar.gz releases used here):
 
    ```bash
    curl -s https://packages.cloud.google.com/apt/dists/cloud-sdk/main/binary-all/Packages | grep "Version:" | sort -V | tail -5
    ```
 
-2. Update `GOOGLE_SDK_VERSION` in `Dockerfile`:
+2. Update `GOOGLE_CLOUD_CLI_VERSION` in `Dockerfile`:
 
    ```dockerfile
-   ARG GOOGLE_SDK_VERSION=538.0.0-0  # Change to desired version
+   ARG GOOGLE_CLOUD_CLI_VERSION=570.0.0  # Change to desired version
    ```
 
-3. Update the tag in `Makefile` and `test-image.sh`
-4. Test the changes: `./test-image.sh`
+3. Test the changes: `./test-image.sh`
 
 ### Update Other Tools
 
-Edit the respective `ARG` variables in the `Dockerfile`:
-
-- `SKAFFOLD_VERSION` for Skaffold
-- `HELM_VERSION` for Helm
+- Skaffold and kubectl are installed as gcloud components, so they upgrade with the Google Cloud SDK
+- Edit `HELM_VERSION` in the `Dockerfile` to bump Helm
 
 ## Troubleshooting
 
@@ -109,7 +106,7 @@ Edit the respective `ARG` variables in the `Dockerfile`:
 - **Cause**: Image was built on Apple Silicon (arm64) but CircleCI needs amd64
 
 **Google Cloud SDK Installation Fails**
-- Ensure you're using the correct package name (`google-cloud-cli` vs `google-cloud-sdk`)
+- Verify the `GOOGLE_CLOUD_CLI_VERSION` exists in the [release notes](https://cloud.google.com/sdk/docs/release-notes)
 - Check version compatibility with the base Node.js image
 
 **Node.js Version Mismatch**

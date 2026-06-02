@@ -1,19 +1,20 @@
 FROM cimg/node:22.19.0
 
-ARG GOOGLE_SDK_VERSION=538.0.0-0
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    sudo apt-get install -y apt-transport-https ca-certificates gnupg && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
-    sudo apt-get update && sudo apt-get install -y google-cloud-cli=$GOOGLE_SDK_VERSION && \
-    sudo apt-get install google-cloud-cli-gke-gcloud-auth-plugin
+# https://cloud.google.com/sdk/docs/release-notes
+ARG GOOGLE_CLOUD_CLI_VERSION=570.0.0
+ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
+RUN cd $HOME && curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GOOGLE_CLOUD_CLI_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf google-cloud-cli-${GOOGLE_CLOUD_CLI_VERSION}-linux-x86_64.tar.gz && \
+    rm google-cloud-cli-${GOOGLE_CLOUD_CLI_VERSION}-linux-x86_64.tar.gz && \
+    gcloud config set core/disable_usage_reporting true && \
+    gcloud config set component_manager/disable_update_check true && \
+    gcloud config set metrics/environment github_docker_image && \
+    gcloud components remove bq && \
+    gcloud components install kubectl skaffold --quiet && \
+    rm -rf $(find google-cloud-sdk/ -regex ".*/__pycache__") && \
+    rm -rf google-cloud-sdk/.install/.backup
 
-ARG SKAFFOLD_VERSION=v1.17.2
-RUN sudo curl -Lo skaffold https://github.com/GoogleContainerTools/skaffold/releases/download/$SKAFFOLD_VERSION/skaffold-linux-amd64 && \
-    sudo chmod +x skaffold && sudo mv skaffold /usr/local/bin
-
-ARG HELM_VERSION=v3.4.2
+ARG HELM_VERSION=v4.2.0
 RUN sudo curl -Lo helm.tar.gz https://get.helm.sh/helm-$HELM_VERSION-linux-amd64.tar.gz && \
     sudo tar zxvf helm.tar.gz && sudo mv linux-amd64/helm /usr/local/bin && \
     sudo rm helm.tar.gz && sudo rm -rf linux-amd64
-
-RUN sudo apt-get install -y kubectl jq

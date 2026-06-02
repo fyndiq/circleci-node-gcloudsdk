@@ -1,17 +1,18 @@
 REPO=fyndiq
 NAME=circleci-node-gcloudsdk
-TAG=node-lts-gcloudsdk538.0.0-v1
+TAG:=$(shell git rev-parse --short HEAD)
+IMAGE=$(REPO)/$(NAME):$(TAG)
 
 build:
-	docker buildx build --platform linux/amd64 -t $(REPO)/$(NAME):$(TAG) --load .
-	docker tag $(REPO)/$(NAME):$(TAG) $(REPO)/$(NAME):latest
+	docker buildx build --platform linux/amd64 -t $(IMAGE) --load .
+	docker tag $(IMAGE) $(REPO)/$(NAME):latest
 
 build-local:
-	docker build -t $(REPO)/$(NAME):$(TAG) .
-	docker tag $(REPO)/$(NAME):$(TAG) $(REPO)/$(NAME):latest
+	docker build -t $(IMAGE) .
+	docker tag $(IMAGE) $(REPO)/$(NAME):latest
 
 run:
-	docker run -it --rm $(REPO)/$(NAME):$(TAG)
+	docker run -it --rm $(IMAGE)
 
 push:
-	docker buildx build --platform linux/amd64 -t $(REPO)/$(NAME):$(TAG) -t $(REPO)/$(NAME):latest . --push
+	docker buildx build --platform linux/amd64 -t $(IMAGE) -t $(REPO)/$(NAME):latest . --push
